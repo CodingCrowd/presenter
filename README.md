@@ -1,12 +1,7 @@
-# agnoster.zsh-theme
+# presenter.zsh-theme
 
-A ZSH theme optimized for people who use:
+A ZSH theme based on [Agnoster](https://github.com/agnoster/agnoster-zsh-theme) optimized for people do screencasts or presentations
 
-- Solarized
-- Git
-- Unicode-compatible fonts and terminals (I use iTerm2 + Menlo)
-
-For Mac users, I highly recommend iTerm 2 + Solarized Dark
 
 # Compatibility
 
