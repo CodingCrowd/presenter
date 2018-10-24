@@ -1,26 +1,6 @@
 # vim:ft=zsh ts=2 sw=2 sts=2
 #
-# agnoster's Theme - https://gist.github.com/3712874
-# A Powerline-inspired theme for ZSH
-#
-# # README
-#
-# In order for this theme to render correctly, you will need a
-# [Powerline-patched font](https://gist.github.com/1595572).
-#
-# In addition, I recommend the
-# [Solarized theme](https://github.com/altercation/solarized/) and, if you're
-# using it on Mac OS X, [iTerm 2](http://www.iterm2.com/) over Terminal.app -
-# it has significantly better color fidelity.
-#
-# # Goals
-#
-# The aim of this theme is to only show you *relevant* information. Like most
-# prompts, it will only show git information when in a git working directory.
-# However, it goes a step further: everything from the current user and
-# hostname to whether the last call exited with an error to whether background
-# jobs are running in this shell will all be displayed automatically when
-# appropriate.
+# Presenter theme for zsh. Using the command `present` it will remove the file path from display, then use `presentoff` to turn it back to normal.
 
 ### Segment drawing
 # A few utility functions to make it easy and re-usable to draw segmented prompts
@@ -30,14 +10,24 @@ if [[ -z "$PRIMARY_FG" ]]; then
 	PRIMARY_FG=black
 fi
 
+# PROMPT
+if [ ! -n "${PRESENTER_PROMPT_CHAR+1}" ]; then
+  PRESENTER_PROMPT_CHAR="\$"
+fi
+if [ ! -n "${PRESENTER_PROMPT_ROOT+1}" ]; then
+  PRESENTER_PROMPT_ROOT=true
+fi
+
+
 # Characters
 SEGMENT_SEPARATOR="\ue0b0"
-PLUSMINUS="\u00b1"
 BRANCH="\ue0a0"
 DETACHED="\u27a6"
-CROSS="\u2718"
 LIGHTNING="\u26a1"
 GEAR="\u2699"
+FIRE="🔥"
+BEER="🍺"
+BIN="🗑️"
 
 # Begin a segment
 # Takes two arguments, background and foreground. Both can be omitted,
@@ -87,8 +77,8 @@ prompt_git() {
   ref="$vcs_info_msg_0_"
   if [[ -n "$ref" ]]; then
     if is_dirty; then
-      color=yellow
-      ref="${ref} $PLUSMINUS"
+			color=yellow
+      ref="${ref} $BIN "
     else
       color=green
       ref="${ref} "
@@ -115,7 +105,8 @@ prompt_dir() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}$CROSS"
+  [[ $RETVAL -ne 0 ]] && symbols+="$FIRE"
+	[[ $RETVAL -eq 0 ]] && symbols+="%{%F{red}%}$BEER"
   [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}$GEAR"
 
@@ -135,17 +126,45 @@ prompt_virtualenv() {
 prompt_agnoster_main() {
   RETVAL=$?
   CURRENT_BG='NONE'
-  prompt_status
-  prompt_context
-  prompt_virtualenv
-  prompt_dir
-  prompt_git
-  prompt_end
+	    if [[ -z $PRESENT ]]; then
+				prompt_status
+				prompt_context
+				prompt_virtualenv
+				prompt_dir
+				prompt_git
+				prompt_end
+	    else
+	        # note that I've had feedback that people seeing fire
+	        # while I'm in demo mode is off-putting so I've disabled it
+	        # here by default, but swap out the next two lines to enable it
+	        # echo -n "%(?:💻 :🔥 )"
+	        echo -n "💻 "
+	        # if we're in the root of presentation, hide the path
+	        if [[ ! $PWD == $PRESENT ]]; then
+	            echo -n "%{$fg_bold[blue]%}%c%{$reset_color%} "
+	        fi
+	    fi
+}
+
+# Prompt Character
+prompt_char() {
+  local bt_prompt_char
+
+  if [[ ${#PRESENTER_PROMPT_CHAR} -eq 1 ]] then
+    bt_prompt_char="👉 "
+  fi
+
+  if [[ $PRESENTER_PROMPT_ROOT == true ]] then
+    bt_prompt_char="%(!.%F{red}#.%F{green}${bt_prompt_char}%f)"
+  fi
+
+  echo -n $bt_prompt_char
 }
 
 prompt_agnoster_precmd() {
   vcs_info
-  PROMPT='%{%f%b%k%}$(prompt_agnoster_main) '
+  PROMPT='%{%f%b%k%}$(prompt_agnoster_main)
+%{${fg_bold[default]}%}$(prompt_char) %{$reset_color%}'
 }
 
 prompt_agnoster_setup() {
@@ -163,3 +182,5 @@ prompt_agnoster_setup() {
 }
 
 prompt_agnoster_setup "$@"
+alias present='export PRESENT=$(pwd)'
+alias presentoff='unset PRESENT'
