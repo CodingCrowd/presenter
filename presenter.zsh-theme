@@ -98,10 +98,6 @@ prompt_dir() {
   prompt_segment blue $PRIMARY_FG ' %~ '
 }
 
-# Status:
-# - was there an error
-# - am I root
-# - are there background jobs?
 prompt_status() {
   local symbols
   symbols=()
@@ -141,6 +137,7 @@ prompt_agnoster_main() {
 	        echo -n "💻 "
 	        # if we're in the root of presentation, hide the path
 	        if [[ ! $PWD == $PRESENT ]]; then
+              $PRESENTER_PROMPT_CHAR = "0"
 	            echo -n "%{$fg_bold[blue]%}%c%{$reset_color%} "
 	        fi
 	    fi
