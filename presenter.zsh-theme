@@ -137,9 +137,8 @@ prompt_agnoster_main() {
 	        echo -n "💻 "
 	        # if we're in the root of presentation, hide the path
 	        if [[ ! $PWD == $PRESENT ]]; then
-              $PRESENTER_PROMPT_CHAR = "0"
-	            echo -n "%{$fg_bold[blue]%}%c%{$reset_color%} "
-	        fi
+            echo -n "%{$fg_bold[blue]%}%c%{$reset_color%} "
+        fi
 	    fi
 }
 
